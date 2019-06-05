@@ -1,0 +1,26 @@
+{
+  "name": "cruzhacks_microservice",
+  "version": "1.0.0",
+  "description": "Azure Functions sample for the Serverless framework",
+  "scripts": {
+    "test": "echo \"No tests yet...\"",
+    "start": "func host start"
+  },
+  "keywords": [
+    "azure",
+    "serverless"
+  ],
+  "dependencies": {
+    "cryptiles": ">=4.1.2",
+    "hoek": ">=4.2.1",
+    "pg": "^7.11.0",
+    "static-eval": ">=2.0.0"
+  },
+  "devDependencies": {
+    "serverless-azure-functions": ">=0.7.0",
+    "eslint": "^5.16.0",
+    "eslint-config-prettier": "^4.2.0",
+    "eslint-plugin-prettier": "^3.0.1",
+    "prettier": "^1.17.0"
+  }
+}
