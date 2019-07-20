@@ -105,10 +105,34 @@ module.exports.handler = async function(context, req) {
             const {text, vals} = await sqlCommandGenerator(req);
             try {
                 const results = await client.query(text, vals)
-                context.res = { body: `Successfully saved ${req.body.attendeeEmail} to database!`};
+                context.res = { 
+                    body: `Successfully saved ${req.body.attendeeEmail} to database!`,
+                    status: 200
+                };
               } catch(err) {
                 context.res = { body: `${JSON.stringify(err.stack)}` }
               }
+        }
+        else {
+            if (!req.body.attedeeName) {
+                // STATUS 401: Unauthorized
+                context.res = {
+                    body: `Please enter a name!`,
+                    status: 401
+                }
+            }
+            else if (!req.body.attendeeEmail) {
+                context.res = {
+                    body: `Please enter an email!`,
+                    status: 401
+                }
+            }
+            else {
+                context.res = {
+                    body: `Please enter a password!`,
+                    status: 401
+                }
+            }
         }
     }
 };
