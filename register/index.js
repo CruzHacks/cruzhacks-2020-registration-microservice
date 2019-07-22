@@ -1,14 +1,25 @@
 "use strict";
 
-const { Client } = require('pg');
+/*
+    HTTP STATUSES (We could export it into another module)
+*/
+const HTTP_STATUS_OK = 200
+const HTTP_STATUS_BAD_REQUEST = 400
+const HTTP_STATUS_UNAUTHORIZED = 401
+// const HTTP_STATUS_FORBIDDEN = 403
+// const HTTP_STATUS_NOT_FOUND = 404
+
+const {
+    Client
+} = require('pg');
 const bcrypt = require('bcrypt');
 
 const client = new Client({
-  user: 'joseph',
-  host: 'localhost',
-  database: 'hackers',
-  password: 'password',
-  post: 5432
+    user: 'joseph',
+    host: 'localhost',
+    database: 'hackers',
+    password: 'password',
+    post: 5432
 });
 
 client.connect().then(() => console.log('connected to database...')).catch(e => console.log(e));
@@ -19,32 +30,32 @@ client.connect().then(() => console.log('connected to database...')).catch(e => 
     before we return the hashed password or we'll just get a Promise { <pending> }. 
 */
 const createHashedPw = async (password) => {
-  const saltRounds = 10;
-  const hashedPassword = await new Promise((resolve, reject) => {
-    bcrypt.hash(password, saltRounds, (err, hash) => {
-      if (err) reject(err);
-      else resolve(hash);
+    const saltRounds = 10;
+    const hashedPassword = await new Promise((resolve, reject) => {
+        bcrypt.hash(password, saltRounds, (err, hash) => {
+            if (err) reject(err);
+            else resolve(hash);
+        });
     });
-  });
-  return hashedPassword;
+    return hashedPassword;
 };
 
 /*
     Helper function to create the correct SQL command.
 */
-const sqlCommandGenerator = async (req) => {
+const sqlCommandGenerator = async (req, type) => {
     // First hash the password
     const hashedPassword = await createHashedPw(req.body.attendeePassword);
     // this is the sql command (possibly use an ORM to simplify?)
-    let text = "INSERT INTO attendees"+
-    "(name,email,password,age,school,year_of_graduation,"+
-    "ucsc_student,ucsc_college_affil,major,linkedin_url,"+
-    "github_url,first_hackathon,first_cruzhacks,particate_question,"+
-    "humanity_goals_question,cruzhacks2020_question,has_a_team,team_members,"+
-    "team_member_emails,dietary_restrictions,housing_accomadation,"+
-    "bussing_accomadation,place_to_park) VALUES($1, $2, $3, $4, $5"+
-    ", $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21,"+
-    " $22, $23) RETURNING *";
+    let text = "INSERT INTO attendees" +
+        "(name,email,password,age,school,year_of_graduation," +
+        "ucsc_student,ucsc_college_affil,major,linkedin_url," +
+        "github_url,first_hackathon,first_cruzhacks,particate_question," +
+        "humanity_goals_question,cruzhacks2020_question,has_a_team,team_members," +
+        "team_member_emails,dietary_restrictions,housing_accomadation," +
+        "bussing_accomadation,place_to_park) VALUES($1, $2, $3, $4, $5" +
+        ", $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21," +
+        " $22, $23) RETURNING *";
 
     let valuesObj = {
         name: req.body.attendeeName,
@@ -92,47 +103,117 @@ const sqlCommandGenerator = async (req) => {
     }
 
     const vals = await Object.values(valuesObj);
-    return {text, vals};
+    return {
+        text,
+        vals
+    };
 }
 
 
 // We could use an HTML5 form validation before we submit (all inputs must be filled with some value)
 // Make sure the method is a POST request (HTTP message body rather than URL (safer))
 
-module.exports.handler = async function(context, req) {
+module.exports.handler = async function (context, req) {
     if (req.method === "POST") {
-        if (req.body.attendeeName && req.body.attendeeEmail && req.body.attendeePassword) {
-            const {text, vals} = await sqlCommandGenerator(req);
-            try {
-                const results = await client.query(text, vals)
-                context.res = { 
-                    body: `Successfully saved ${req.body.attendeeEmail} to database!`,
-                    status: 200
-                };
-              } catch(err) {
-                context.res = { body: `${JSON.stringify(err.stack)}` }
-              }
-        }
-        else {
-            if (!req.body.attedeeName) {
-                // STATUS 401: Unauthorized
-                context.res = {
-                    body: `Please enter a name!`,
-                    status: 401
+        // Make sure we get a attendeeName, email, password, and there is a registration type
+        if (req.body.attendeeName && req.body.attendeeEmail && req.body.attendeePassword && req.query.type) {
+            // Now we check which query type was sent
+            switch (req.query.type) {
+                case "hacker": {
+                    const {
+                        text,
+                        vals
+                    } = await sqlCommandGenerator(req, "hacker");
+                    try {
+                        const results = await client.query(text,vals)
+                        console.log("Saving hacker to database: ", results)
+                        context.res = {
+                            body: `Successfully saved ${req.body.attendeeEmail} (a hacker) to database!`,
+                            status: HTTP_STATUS_OK
+                        }
+                    } catch (err) {
+                        context.res = {
+                            body: `${JSON.stringify(err.stack)}`,
+                            status: HTTP_STATUS_BAD_REQUEST
+                        }
+                    }
                 }
-            }
-            else if (!req.body.attendeeEmail) {
-                context.res = {
-                    body: `Please enter an email!`,
-                    status: 401
+                case "mentor": {
+                    const {
+                        text,
+                        vals
+                    } = await sqlCommandGenerator(req, "mentor")
+                    try {
+                        const results = await client.query(text,vals)
+                        console.log("Saving mentor to database: ", results)
+                        context.res = {
+                            body: `Successfully saved ${req.body.attendeeEmail} (a mentor) to database!`,
+                            status: HTTP_STATUS_OK
+                        }
+                    } catch (err) {
+                        context.res = {
+                            body: `${JSON.stringify(err.stack)}`,
+                            status: HTTP_STATUS_BAD_REQUEST
+                        }
+                    }
                 }
-            }
-            else {
-                context.res = {
-                    body: `Please enter a password!`,
-                    status: 401
+                case "volunteer": {
+                    const {
+                        text,
+                        vals
+                    } = await sqlCommandGenerator(req, "volunteer")
+                    try {
+                        const results = await client.query(text,vals)
+                        console.log("Saving volunteer to database: ", results)
+                        context.res = {
+                            body: `Successfully saved ${req.body.attendeeEmail} (a volunteer) to database!`,
+                            status: HTTP_STATUS_OK
+                        }
+                    } catch (err) {
+                        context.res = {
+                            body: `${JSON.stringify(err.stack)}`,
+                            status: HTTP_STATUS_BAD_REQUEST
+                        }
+                    }
                 }
             }
         }
     }
 };
+        /*
+        if (req.body.attendeeName && req.body.attendeeEmail && req.body.attendeePassword) {
+            const {
+                text,
+                vals
+            } = await sqlCommandGenerator(req);
+            try {
+                const results = await client.query(text, vals)
+                context.res = {
+                    body: `Successfully saved ${req.body.attendeeEmail} to database!`,
+                    status: HTTP_STATUS_OK
+                };
+            } catch (err) {
+                context.res = {
+                    body: `${JSON.stringify(err.stack)}`
+                }
+            }
+        } else {
+            if (!req.body.attedeeName) {
+                // STATUS 401: Unauthorized
+                context.res = {
+                    body: `Please enter a name!`,
+                    status: HTTP_STATUS_UNAUTHORIZED
+                }
+            } else if (!req.body.attendeeEmail) {
+                context.res = {
+                    body: `Please enter an email!`,
+                    status: HTTP_STATUS_UNAUTHORIZED
+                }
+            } else {
+                context.res = {
+                    body: `Please enter a password!`,
+                    status: HTTP_STATUS_UNAUTHORIZED
+                }
+            }
+        }
+        */
