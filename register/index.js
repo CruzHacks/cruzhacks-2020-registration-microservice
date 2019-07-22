@@ -1,4 +1,4 @@
-"use strict";
+"use strict"
 
 /*
     HTTP STATUSES (We could export it into another module)
@@ -11,18 +11,19 @@ const HTTP_STATUS_UNAUTHORIZED = 401
 
 const {
     Client
-} = require('pg');
-const bcrypt = require('bcrypt');
+} = require('pg')
 
-const client = new Client({
+const bcrypt = require('bcrypt')
+
+const database = new Client({
     user: 'joseph',
     host: 'localhost',
     database: 'hackers',
     password: 'password',
     post: 5432
-});
+})
 
-client.connect().then(() => console.log('connected to database...')).catch(e => console.log(e));
+database.connect().then(() => console.log('connected to database...')).catch(e => console.log(e))
 
 /*
     https://www.npmjs.com/package/bcrypt
@@ -30,23 +31,26 @@ client.connect().then(() => console.log('connected to database...')).catch(e => 
     before we return the hashed password or we'll just get a Promise { <pending> }. 
 */
 const createHashedPw = async (password) => {
-    const saltRounds = 10;
+    const saltRounds = 10
     const hashedPassword = await new Promise((resolve, reject) => {
         bcrypt.hash(password, saltRounds, (err, hash) => {
-            if (err) reject(err);
-            else resolve(hash);
-        });
-    });
-    return hashedPassword;
-};
+            if (err) reject(err)
+            else resolve(hash)
+        })
+    })
+    return hashedPassword
+}
 
 /*
     Helper function to create the correct SQL command.
 */
 const sqlCommandGenerator = async (req, type) => {
     // First hash the password
-    const hashedPassword = await createHashedPw(req.body.attendeePassword);
+    const hashedPassword = await createHashedPw(req.body.attendeePassword)
     // this is the sql command (possibly use an ORM to simplify?)
+  
+  /* Let's replace this with Knex
+
     let text = "INSERT INTO attendees" +
         "(name,email,password,age,school,year_of_graduation," +
         "ucsc_student,ucsc_college_affil,major,linkedin_url," +
@@ -55,165 +59,94 @@ const sqlCommandGenerator = async (req, type) => {
         "team_member_emails,dietary_restrictions,housing_accomadation," +
         "bussing_accomadation,place_to_park) VALUES($1, $2, $3, $4, $5" +
         ", $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21," +
-        " $22, $23) RETURNING *";
+        " $22, $23) RETURNING *"
+    */
 
-    let valuesObj = {
-        name: req.body.attendeeName,
+    let application = {
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
         email: req.body.attendeeEmail,
-        password: hashedPassword,
-        age: req.body.attendeeAge,
-        school: req.body.attendeeSchool,
-        year_of_graduation: req.body.attendeeYOG,
-        ucsc_student: req.body.attendeeUCSCStudent,
-        ucsc_college: req.body.attendeeCollegeAffil,
-        major: req.body.attendeeMajor,
-        linkedin_url: req.body.attendeeLinkedIn,
-        github_url: req.body.attendeeGithub,
-        first_hackathon: req.body.attendeeFirstHackathon,
-        first_cruzhacks: req.body.attendeeFirstCruzhacks,
-        particate_question: req.body.attendeePartipateQuestion,
-        humanity_goals_question: req.body.attendeeHumanityGoalQuestion,
-        cruzhacks2020_question: req.body.attendeeCruzhacksQuestion,
-        has_a_team: req.body.attendeeHasATeam,
-        team_members: null,
-        team_member_emails: null,
-        dietary_restrictions: null,
-        housing_accomadation: req.body.attendeeHousingAccom,
-        bussing_accomadation: req.body.attendeeBussingAccom,
-        place_to_park: req.body.attendeePlaceToPark
-    };
-    if (req.body.attendeeUCSCStudent) {
-        valuesObj.ucsc_college = req.body.attendeeCollegeAffil;
+        portalPass: hashedPassword,
     }
-    if (req.body.attendeeMajor) {
-        valuesObj.major = req.body.attendeeMajor;
-    }
-    if (req.body.attendeeLinkedIn) {
-        valuesObj.linkedin_url = req.body.attendeeLinkedIn;
-    }
-    if (req.body.attendeeGithub) {
-        valuesObj.github_url = req.body.attendeeGithub;
-    }
-    if (req.body.attendeeHasATeam && req.body.attendeeTeamMembers && req.body.attendeeTeamMemberEmails) {
-        valuesObj.team_members = req.body.attendeeTeamMembers;
-        valuesObj.team_member_emails = req.body.attendeeTeamMemberEmails;
-    }
-    if (req.body.attendeeDietaryRestrict) {
-        valuesObj.dietary_restrictions = req.body.attendeeDietaryRestrict;
+    
+    // build fields based on application type
+    if (req.query.type == "hacker" || req.query.type == "mentor" || req.query.type == "volunteer") {
+        application.age = req.body.age
+        application.gender = req.body.gender
+        application.ethnicity = req.body.ethnicity
+        application.firstCruzHacks = req.body.firstCruzHacks
+        application.whyParticipate = req.body.whyParticipate
+        application.whatSee = req.body.whatSee
+        application.dietaryRestrictions = req.body.dietaryRestrictions
+        application.restPlace = req.body.restPlace
+        application.parking = req.body.parking
+        application.accomodations = req.body.accomodations
+        
+        if (req.query.type == "mentor") {
+            application.schoolOrCompany = req.body.schoolOrCompany
+        }
+        if (req.query.type == "hacker") {
+            application.ucscStudent = req.body.ucscStudent
+            application.ucscCollege = req.body.ucscCollege
+            application.school = req.body.school
+            application.techGoals = req.body.techGoals
+            application.haveTeam = req.body.haveTeam
+            application.teamNames = req.body.teamNames
+            application.teamEmails = req.body.teamEmails
+        }
+        if (req.query.type == "volunteer") {
+            application.cruzID = req.body.cruzID
+        }
+        if (req.query.type != "volunteer") {
+            application.linkedin = req.body.linkedin
+            application.github = req.body.github
+            application.transport = req.body.transport
+        }
+        if (req.query.type !=  "mentor") {
+            application.major = req.body.major
+            application.gradYear = req.body.gradYear
+            application.firstHackathon = req.body.firstHackathon
+        }
     }
 
-    const vals = await Object.values(valuesObj);
+    const appFields = await Object.values(application)
     return {
-        text,
-        vals
-    };
+      //  text,
+        appFields
+    }
 }
-
 
 // We could use an HTML5 form validation before we submit (all inputs must be filled with some value)
 // Make sure the method is a POST request (HTTP message body rather than URL (safer))
 
 module.exports.handler = async function (context, req) {
     if (req.method === "POST") {
-        // Make sure we get a attendeeName, email, password, and there is a registration type
-        if (req.body.attendeeName && req.body.attendeeEmail && req.body.attendeePassword && req.query.type) {
-            // Now we check which query type was sent
-            switch (req.query.type) {
-                case "hacker": {
-                    const {
-                        text,
-                        vals
-                    } = await sqlCommandGenerator(req, "hacker");
-                    try {
-                        const results = await client.query(text,vals)
-                        console.log("Saving hacker to database: ", results)
-                        context.res = {
-                            body: `Successfully saved ${req.body.attendeeEmail} (a hacker) to database!`,
-                            status: HTTP_STATUS_OK
-                        }
-                    } catch (err) {
-                        context.res = {
-                            body: `${JSON.stringify(err.stack)}`,
-                            status: HTTP_STATUS_BAD_REQUEST
-                        }
-                    }
+        // Make sure we get a valid registration type
+        if (req.query.type) {
+            const {
+                //text,
+                vals
+            } = await sqlCommandGenerator(req)
+            try {
+                await database.query(text, vals)
+                context.res = {
+                    body: `Successfully saved ${req.body.attendeeEmail} to database!`,
+                    status: HTTP_STATUS_OK
                 }
-                case "mentor": {
-                    const {
-                        text,
-                        vals
-                    } = await sqlCommandGenerator(req, "mentor")
-                    try {
-                        const results = await client.query(text,vals)
-                        console.log("Saving mentor to database: ", results)
-                        context.res = {
-                            body: `Successfully saved ${req.body.attendeeEmail} (a mentor) to database!`,
-                            status: HTTP_STATUS_OK
-                        }
-                    } catch (err) {
-                        context.res = {
-                            body: `${JSON.stringify(err.stack)}`,
-                            status: HTTP_STATUS_BAD_REQUEST
-                        }
-                    }
+            } catch (err) {
+                context.res = {
+                    body: `${JSON.stringify(err.stack)}`,
+                    status: HTTP_STATUS_BAD_REQUEST
                 }
-                case "volunteer": {
-                    const {
-                        text,
-                        vals
-                    } = await sqlCommandGenerator(req, "volunteer")
-                    try {
-                        const results = await client.query(text,vals)
-                        console.log("Saving volunteer to database: ", results)
-                        context.res = {
-                            body: `Successfully saved ${req.body.attendeeEmail} (a volunteer) to database!`,
-                            status: HTTP_STATUS_OK
-                        }
-                    } catch (err) {
-                        context.res = {
-                            body: `${JSON.stringify(err.stack)}`,
-                            status: HTTP_STATUS_BAD_REQUEST
-                        }
-                    }
+            }
+        } else 
+            if (!req.body.attendeeName) {
+                // STATUS 401: Unauthorized
+                context.res = {
+                    body: `invalid application data!`,
+                    status: HTTP_STATUS_UNAUTHORIZED
                 }
             }
         }
     }
-};
-        /*
-        if (req.body.attendeeName && req.body.attendeeEmail && req.body.attendeePassword) {
-            const {
-                text,
-                vals
-            } = await sqlCommandGenerator(req);
-            try {
-                const results = await client.query(text, vals)
-                context.res = {
-                    body: `Successfully saved ${req.body.attendeeEmail} to database!`,
-                    status: HTTP_STATUS_OK
-                };
-            } catch (err) {
-                context.res = {
-                    body: `${JSON.stringify(err.stack)}`
-                }
-            }
-        } else {
-            if (!req.body.attedeeName) {
-                // STATUS 401: Unauthorized
-                context.res = {
-                    body: `Please enter a name!`,
-                    status: HTTP_STATUS_UNAUTHORIZED
-                }
-            } else if (!req.body.attendeeEmail) {
-                context.res = {
-                    body: `Please enter an email!`,
-                    status: HTTP_STATUS_UNAUTHORIZED
-                }
-            } else {
-                context.res = {
-                    body: `Please enter a password!`,
-                    status: HTTP_STATUS_UNAUTHORIZED
-                }
-            }
-        }
-        */
+}
