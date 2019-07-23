@@ -65,7 +65,7 @@ const sqlCommandGenerator = async (req, type) => {
     let application = {
         firstName: req.body.firstName,
         lastName: req.body.lastName,
-        email: req.body.attendeeEmail,
+        email: req.body.email,
         portalPass: hashedPassword,
     }
     
