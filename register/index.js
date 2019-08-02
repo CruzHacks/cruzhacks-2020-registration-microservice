@@ -144,6 +144,11 @@ module.exports.handler = async function (context, req) {
                     }
                 }
             }
+        } else {
+            context.res = {
+                body: `Query parameter not found.`,
+                status: HTTP_STATUS_BAD_REQUEST
+            }
         }
     }
 }
