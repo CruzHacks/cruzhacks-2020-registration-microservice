@@ -43,4 +43,7 @@ To view the table inside the database:
 ## Microservice setup
 In the file /create/index.js, change the client parameters for postgre-node. I'm not sure how to setup enviroment variables for this microservice so I'm going to be omitting that from the file for now. Change the user, database, and password to the information you used to create the database. Host is usually set to 'localhost' and port is set to 5432. 
 
+## Note
+This seems to be breaking when using an unstable release of Node.JS. Use v10.10.0 to offset this.
+
 
