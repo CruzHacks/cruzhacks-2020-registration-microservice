@@ -121,7 +121,7 @@ module.exports.handler = async function (context, req) {
             }
         }
         // We make sure a query type has been passed
-        if (req.query.type) {
+        if (req.query.type == "hacker" || req.query.type == "mentor" || req.query.type == "volunteer") {
             // We check to see if the user already exist in the database, if they do return a bad request
             const exist = recordExist(req);
             if (exist) {
