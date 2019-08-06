@@ -41,13 +41,14 @@ const createHashedPw = async (password) => {
 
 const recordExist = async (req) => {
     // Since req.query.type is singular, we add an s to make it plural (and to conform to the table names)
-    await db(`${req.query.type}s`).where('email', req.body.email).then((exist) => {
-        if (exist.length == 0) return false
+    const doesExist = await db(`${req.query.type}s`).where('email', req.body.email).then((exist) => {
+        if (exist.length === 0) return false
         else return true
     }).catch((err => {
         console.log(err);
         throw err
     }));
+    return doesExist
 }
 
 const insert = async (req) => {
@@ -123,7 +124,7 @@ module.exports.handler = async function (context, req) {
         // We make sure a query type has been passed
         if (req.query.type == "hacker" || req.query.type == "mentor" || req.query.type == "volunteer") {
             // We check to see if the user already exist in the database, if they do return a bad request
-            const exist = await recordExist(req);
+            const exist = await recordExist(req)
             if (exist) {
                 context.res = {
                     body: `User: ${req.body.email}, already exist in the database!`,
