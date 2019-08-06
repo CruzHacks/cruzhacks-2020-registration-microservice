@@ -100,7 +100,7 @@ const insert = async (req) => {
             application.firstHackathon = req.body.firstHackathon
         }
     }
-    await knex(`${req.query.type}s`).insert(application).then(() => {
+    await db(`${req.query.type}s`).insert(application).then(() => {
         console.log(`${req.body.email} has been added to table ${req.query.type}s`)
     }).catch((err) => {
         console.log(err);
