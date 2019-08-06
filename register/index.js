@@ -132,7 +132,7 @@ module.exports.handler = async function (context, req) {
             } else {
                 // now we try to insert the user into database
                 try {
-                    insert(req)
+                    await insert(req)
                     context.res = {
                         body: `Successfully saved ${req.body.email} to database!`,
                         status: HTTP_STATUS_OK
