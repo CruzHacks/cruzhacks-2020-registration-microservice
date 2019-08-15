@@ -11,7 +11,7 @@ const HTTP_STATUS_UNAUTHORIZED = 401
 
 const bcrypt = require('bcrypt')
 
-const knex = require('knex')({
+const db = require('knex')({
     client: 'pg',
     connection: {
         host: process.env.DB_HOST,
@@ -41,13 +41,14 @@ const createHashedPw = async (password) => {
 
 const recordExist = async (req) => {
     // Since req.query.type is singular, we add an s to make it plural (and to conform to the table names)
-    await knex(`${req.query.type}s`).where('email', req.body.email).then((exist) => {
+    const doesExist = await db(`${req.query.type}s`).where('email', req.body.email).then((exist) => {
         if (exist.length === 0) return false
         else return true
     }).catch((err => {
         console.log(err);
         throw err
     }));
+    return doesExist
 }
 
 const insert = async (req) => {
@@ -100,7 +101,7 @@ const insert = async (req) => {
             application.firstHackathon = req.body.firstHackathon
         }
     }
-    await knex(`${req.query.type}s`).insert(application).then(() => {
+    await db(`${req.query.type}s`).insert(application).then(() => {
         console.log(`${req.body.email} has been added to table ${req.query.type}s`)
     }).catch((err) => {
         console.log(err);
@@ -121,9 +122,9 @@ module.exports.handler = async function (context, req) {
             }
         }
         // We make sure a query type has been passed
-        if (req.query.type) {
+        if (req.query.type == "hacker" || req.query.type == "mentor" || req.query.type == "volunteer") {
             // We check to see if the user already exist in the database, if they do return a bad request
-            const exist = recordExist(req);
+            const exist = await recordExist(req)
             if (exist) {
                 context.res = {
                     body: `User: ${req.body.email}, already exist in the database!`,
@@ -132,7 +133,7 @@ module.exports.handler = async function (context, req) {
             } else {
                 // now we try to insert the user into database
                 try {
-                    insert(req)
+                    await insert(req)
                     context.res = {
                         body: `Successfully saved ${req.body.email} to database!`,
                         status: HTTP_STATUS_OK
@@ -143,6 +144,11 @@ module.exports.handler = async function (context, req) {
                         status: HTTP_STATUS_BAD_REQUEST
                     }
                 }
+            }
+        } else {
+            context.res = {
+                body: `Query parameter not found.`,
+                status: HTTP_STATUS_BAD_REQUEST
             }
         }
     }

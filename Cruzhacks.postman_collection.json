@@ -1,0 +1,171 @@
+{
+	"info": {
+		"_postman_id": "584991cd-aa71-4bdc-9dde-c241451e8ce8",
+		"name": "Cruzhacks",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Register Hacker",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "cd5b07fd-00c5-49f6-92b0-028922024deb",
+						"exec": [
+							"",
+							"// Test if status returned is 200",
+							"pm.test(\"response is ok\", () => {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"firstName\": \"Test\",\n\t\"lastName\": \"User\",\n\t\"email\": \"test@test.com\",\n\t\"attendeePassword\": \"joseph\",\n\t\"gender\": \"Male\",\n\t\"age\": 22,\n\t\"gradYear\": \"2020\",\n\t\"school\": \"ucsc\",\n\t\"ethnicity\": \"Asian\",\n\t\n\t\"ucscStudent\": true,\n\t\"ucscCollege\": \"Rachel Carson College\",\n\t\"major\": \"CompSci\",\n\t\"linkedin\": \"linkedin.com\",\n\t\"github\": \"github.com\",\n\t\"firstHackathon\": true,\n\t\"firstCruzhacks\": true,\n\t\"whyParticipate\": \"i love coding!\",\n\t\"techGoals\": \"i love coding!\",\n\t\"whatSee\": \"i love coding\",\n\t\n\t\"firstCruzHacks\": true,\n\t\n\t\"haveTeam\": false,\n\t\n\t\"transport\": true,\n\t\"restPlace\": true,\n\t\"parking\": true,\n\n\t\"confirmedUser\": false,\n\t\"checkedIn\": false\n}"
+				},
+				"url": {
+					"raw": "http://localhost:7071/api/register?type=hacker",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7071",
+					"path": [
+						"api",
+						"register"
+					],
+					"query": [
+						{
+							"key": "type",
+							"value": "hacker"
+						}
+					]
+				},
+				"description": "Saves the hacker to the database."
+			},
+			"response": []
+		},
+		{
+			"name": "Register Mentor",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "d8113fb1-706e-44f2-8cb5-aecb09b69f5c",
+						"exec": [
+							"// Test if status returned is 200",
+							"pm.test(\"response is ok\", () => {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"firstName\": \"Test\",\n\t\"lastName\": \"User\",\n\t\"email\": \"tester11@test.com\",\n\t\"attendeePassword\": \"joseph\",\n\t\"gender\": \"Male\",\n\t\"age\": 22,\n\t\"schoolOrCompany\": \"ucsc\",\n\t\"ethnicity\": \"Asian\",\n\t\n\t\"ucscStudent\": true,\n\t\"ucscCollege\": \"Rachel Carson College\",\n\t\"linkedin\": \"linkedin.com\",\n\t\"github\": \"github.com\",\n\t\"firstCruzhacks\": true,\n\t\"whyParticipate\": \"i love coding!\",\n\t\"whatSee\": \"i love coding\",\n\t\n\t\"firstCruzHacks\": true,\n\t\n\t\"transport\": true,\n\t\"restPlace\": true,\n\t\"parking\": true,\n\n\t\"confirmedUser\": false,\n\t\"checkedIn\": false\n}"
+				},
+				"url": {
+					"raw": "http://localhost:7071/api/register?type=mentor",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7071",
+					"path": [
+						"api",
+						"register"
+					],
+					"query": [
+						{
+							"key": "type",
+							"value": "mentor"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register Volunteer",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "565c8637-7d5f-4496-96c0-543375f38e4b",
+						"exec": [
+							"",
+							"// Test if status returned is 200",
+							"pm.test(\"response is ok\", () => {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"firstName\": \"Test\",\n\t\"lastName\": \"User\",\n\t\"email\": \"tester@test.com\",\n\t\"attendeePassword\": \"joseph\",\n\t\"cruzID\": \"123123123\",\n\t\"gender\": \"Male\",\n\t\"age\": 22,\n\t\"schoolOrCompany\": \"ucsc\",\n\t\"ethnicity\": \"Asian\",\n\t\n\t\"ucscStudent\": true,\n\t\"ucscCollege\": \"Rachel Carson College\",\n\t\"firstCruzhacks\": true,\n\t\"whyParticipate\": \"i love coding!\",\n\t\"whatSee\": \"i love coding\",\n\t\n\t\"firstCruzHacks\": true,\n\t\"firstHackathon\": true,\n\t\"restPlace\": true,\n\t\"parking\": true,\n\n\t\"confirmedUser\": false,\n\t\"checkedIn\": false\n}"
+				},
+				"url": {
+					"raw": "http://localhost:7071/api/register?type=volunteer",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7071",
+					"path": [
+						"api",
+						"register"
+					],
+					"query": [
+						{
+							"key": "type",
+							"value": "volunteer"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
