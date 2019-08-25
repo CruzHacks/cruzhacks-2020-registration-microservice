@@ -22,6 +22,8 @@ const db = require('knex')({
     }
 });
 
+const httpStatus = require('./issueHTTPstatus')
+
 /*
     https://www.npmjs.com/package/bcrypt
     Note: Since bcrypt.hash returns a promise (when the callback isn't specified), we need to resolve that 
@@ -118,7 +120,7 @@ module.exports.handler = async function (context, req) {
         if (!req.body.email || !req.body.firstName || !req.body.lastName) {
             context.res = {
                 body: `invalid application data!`,
-                status: HTTP_STATUS_UNAUTHORIZED
+                status: httpStatus.unauthorized
             }
         }
         // We make sure a query type has been passed
@@ -128,7 +130,7 @@ module.exports.handler = async function (context, req) {
             if (exist) {
                 context.res = {
                     body: `User: ${req.body.email}, already exist in the database!`,
-                    status: HTTP_STATUS_BAD_REQUEST
+                    status: httpStatus.badRequest
                 }
             } else {
                 // now we try to insert the user into database
@@ -136,19 +138,19 @@ module.exports.handler = async function (context, req) {
                     await insert(req)
                     context.res = {
                         body: `Successfully saved ${req.body.email} to database!`,
-                        status: HTTP_STATUS_OK
+                        status: httpStatus.ok
                     }
                 } catch (err) {
                     context.res = {
                         body: `${JSON.stringify(err.stack)}`,
-                        status: HTTP_STATUS_BAD_REQUEST
+                        status: httpStatus.badRequest
                     }
                 }
             }
         } else {
             context.res = {
                 body: `Query parameter not found.`,
-                status: HTTP_STATUS_BAD_REQUEST
+                status: httpStatus.badRequest
             }
         }
     }
