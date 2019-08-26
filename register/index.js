@@ -1,13 +1,5 @@
 "use strict"
 require('dotenv').config()
-/*
-    HTTP STATUSES (We could export it into another module)
-*/
-const HTTP_STATUS_OK = 200
-const HTTP_STATUS_BAD_REQUEST = 400
-const HTTP_STATUS_UNAUTHORIZED = 401
-// const HTTP_STATUS_FORBIDDEN = 403
-// const HTTP_STATUS_NOT_FOUND = 404
 
 const bcrypt = require('bcrypt')
 
