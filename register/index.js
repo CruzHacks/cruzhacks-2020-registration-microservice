@@ -106,7 +106,7 @@ const insert = async (req) => {
 // We could use an HTML5 form validation before we submit (all inputs must be filled with some value)
 // Make sure the method is a POST request (HTTP message body rather than URL (safer))
 
-const handler = async function (context, req) {
+module.exports.handler = async function (context, req) {
     if (req.method === "POST") {
         // User didn't fill out the needed fields
         if (!req.body.email || !req.body.firstName || !req.body.lastName) {
@@ -147,5 +147,3 @@ const handler = async function (context, req) {
         }
     }
 }
-
-export default { createHashedPw, recordExist, insert, handler }
