@@ -1,8 +1,8 @@
 'use strict';
-require('dotenv').config();
 
 const bcrypt = require('bcrypt');
-
+const { createHashedPw } = require('./hashing');
+const httpStatus = require('./issueHTTPstatus');
 const db = require('knex')({
   client: 'pg',
   connection: {
@@ -14,24 +14,7 @@ const db = require('knex')({
   },
 });
 
-const httpStatus = require('./issueHTTPstatus');
-
-/*
-    https://www.npmjs.com/package/bcrypt
-    Note: Since bcrypt.hash returns a promise (when the callback isn't specified), we need to resolve that 
-    before we return the hashed password or we'll just get a Promise { <pending> }. 
-    Also: if salt rounds are > 20~ it takes 30seconds - 5 minutes to hash
-*/
-const createHashedPw = async password => {
-  const saltRounds = 10;
-  const hashedPassword = await new Promise((resolve, reject) => {
-    bcrypt.hash(password, saltRounds, (err, hash) => {
-      if (err) reject(err);
-      else resolve(hash);
-    });
-  });
-  return hashedPassword;
-};
+if (process.env.ENV === 'dev') require('dotenv').config();
 
 const recordExist = async req => {
   // Since req.query.type is singular, we add an s to make it plural (and to conform to the table names)

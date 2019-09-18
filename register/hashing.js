@@ -14,3 +14,5 @@ const createHashedPw = async password => {
   });
   return hashedPassword;
 };
+
+module.exports = createHashedPw;

@@ -6,4 +6,4 @@ const httpStatus = {
   notFound: 404,
 };
 
-export default httpStatus;
+module.exports = httpStatus;
