@@ -13,5 +13,10 @@
   "parserOptions": {
     "ecmaVersion": 2018
   },
-  "rules": {}
+  "rules": {
+    "func-names": "off",
+    "no-param-reassign": "off",
+    "global-require": "off",
+    "no-console": "off"
+  }
 }

@@ -1,3 +1,5 @@
+const bcrypt = require('bcrypt');
+
 /*
     https://www.npmjs.com/package/bcrypt
     Note: Since bcrypt.hash returns a promise (when the callback isn't specified), we need to resolve that 
